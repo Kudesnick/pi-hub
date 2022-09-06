@@ -1,2 +1,4 @@
-.settings/
-output/
+.settings
+Debug
+Release
+*.launch

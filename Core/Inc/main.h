@@ -57,6 +57,10 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define PI_RxD_Pin GPIO_PIN_6
+#define PI_RxD_GPIO_Port GPIOB
+#define PI_TxD_Pin GPIO_PIN_7
+#define PI_TxD_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
