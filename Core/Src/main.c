@@ -19,6 +19,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "usb_device.h"
+#include "usbd_cdc.h"
+#include "usbd_cdc_if.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -61,6 +63,55 @@ static void MX_USART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void ring_put_byte(t_ring *ring, uint8_t data) {
+  ring->data[ring->w_pos] = data;
+  ring->w_pos++;
+  ring->w_pos = ring->w_pos % RING_BUF_SIZE;
+}
+
+uint8_t* ring_get_byte(t_ring *ring) {
+  if (ring->w_pos == ring->r_pos) return 0;
+  uint8_t *ret = ring->data+ring->r_pos;
+  ring->r_pos++;
+  ring->r_pos = ring->r_pos % RING_BUF_SIZE;
+  return ret;
+}
+
+void ring_put_data(t_ring *ring, uint8_t *data, uint16_t size) {
+  if (size > RING_BUF_SIZE) {
+    data = data+(size-RING_BUF_SIZE);
+    size = RING_BUF_SIZE;
+  }
+  for (int i = 0; i < size; i++) {
+    ring_put_byte(ring, data[i]);
+  }
+}
+
+uint16_t ring_get_data(t_ring *ring, uint8_t *data, uint16_t size) {
+  if (size > RING_BUF_SIZE) size = RING_BUF_SIZE;
+  uint8_t *data_byte;
+  for (int i = 0; i < size; i++) {
+    data_byte = ring_get_byte(ring);
+    if (data_byte == 0) return i;
+    data[i] = *data_byte;
+  }
+  return size;
+}
+
+t_ring cdc_rx_ring[CDC_NUM];
+uint8_t cdc_tx_buff[CDC_NUM][RING_BUF_SIZE];
+
+void uart_tick(void) {
+  for (int i=0;i<CDC_NUM;i++){
+    // transmit data
+    if (CDC_Transmit_Ready(i) == USBD_OK) {
+      uint16_t data_len = ring_get_data(&cdc_rx_ring[CDC_NUM-1-i], cdc_tx_buff[i], RING_BUF_SIZE);
+      if (data_len) {
+        CDC_Transmit_FS(i,cdc_tx_buff[i],data_len);
+      }
+    }
+  }
+}
 
 /* USER CODE END 0 */
 
@@ -107,6 +158,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	uart_tick();
   }
   /* USER CODE END 3 */
 }

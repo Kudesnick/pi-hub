@@ -62,7 +62,18 @@ void Error_Handler(void);
 #define PI_TxD_Pin GPIO_PIN_7
 #define PI_TxD_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
+#define RING_BUF_SIZE 128
 
+typedef struct {
+  uint16_t w_pos;
+  uint16_t r_pos;
+  uint8_t data[RING_BUF_SIZE];
+} t_ring;
+
+void ring_put_byte(t_ring *ring, uint8_t data);
+uint8_t* ring_get_byte(t_ring *ring);
+void ring_put_data(t_ring *ring, uint8_t *data, uint16_t size);
+uint16_t ring_get_data(t_ring *ring, uint8_t *data, uint16_t size);
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

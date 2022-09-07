@@ -111,7 +111,7 @@ uint8_t UserTxBufferFS1[APP_TX_DATA_SIZE];
 extern USBD_HandleTypeDef hUsbDeviceFS;
 
 /* USER CODE BEGIN EXPORTED_VARIABLES */
-
+extern t_ring cdc_rx_ring[];
 /* USER CODE END EXPORTED_VARIABLES */
 
 /**
@@ -185,6 +185,8 @@ static int8_t CDC_DeInit_FS(void)
 static int8_t CDC_Control_FS(uint8_t idx, uint8_t cmd, uint8_t* pbuf, uint16_t length)
 {
   /* USER CODE BEGIN 5 */
+  static USBD_CDC_LineCodingTypeDef lineCoding[CDC_NUM];
+
   switch(cmd)
   {
     case CDC_SEND_ENCAPSULATED_COMMAND:
@@ -225,11 +227,13 @@ static int8_t CDC_Control_FS(uint8_t idx, uint8_t cmd, uint8_t* pbuf, uint16_t l
   /* 6      | bDataBits  |   1   | Number Data bits (5, 6, 7, 8 or 16).          */
   /*******************************************************************************/
     case CDC_SET_LINE_CODING:
-
+      if (length >= sizeof(USBD_CDC_LineCodingTypeDef))
+        lineCoding[idx] = *(USBD_CDC_LineCodingTypeDef *)(pbuf);
     break;
 
     case CDC_GET_LINE_CODING:
-
+      if (length >= sizeof(USBD_CDC_LineCodingTypeDef))
+        *(USBD_CDC_LineCodingTypeDef *)(pbuf) = lineCoding[idx];
     break;
 
     case CDC_SET_CONTROL_LINE_STATE:
@@ -266,6 +270,7 @@ static int8_t CDC_Control_FS(uint8_t idx, uint8_t cmd, uint8_t* pbuf, uint16_t l
 static int8_t CDC_Receive_FS(uint8_t idx, uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
+  ring_put_data(&cdc_rx_ring[idx], Buf, *Len);
   // USBD_CDC_SetRxBuffer(idx, &hUsbDeviceFS, &Buf[0]);
   USBD_CDC_ReceivePacket(idx, &hUsbDeviceFS);
   return (USBD_OK);
@@ -322,7 +327,13 @@ static int8_t CDC_TransmitCplt_FS(uint8_t idx, uint8_t *Buf, uint32_t *Len, uint
 }
 
 /* USER CODE BEGIN PRIVATE_FUNCTIONS_IMPLEMENTATION */
-
+uint8_t CDC_Transmit_Ready(uint8_t idx) {
+  USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef*)hUsbDeviceFS.pClassData;
+  if (hcdc->cdc[idx].TxState != 0){
+    return USBD_BUSY;
+  }
+  return USBD_OK;
+}
 /* USER CODE END PRIVATE_FUNCTIONS_IMPLEMENTATION */
 
 /**
