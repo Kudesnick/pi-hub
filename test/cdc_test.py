@@ -46,15 +46,20 @@ class InOutProtocol(asyncio.Protocol):
         print('resume writing')
 
 refresh_delay = 1
-send_delay = 0.01
-size = 240
+send_delay = 0.01 # 0.01 minimum
+size = 4000 # 4096 maximum for virtual com port emulator
 deviation = 16
+time_limit = 32
+data_limit = 1024 * 1024 * 10
 
 async def writing(transport: SerialTransport, protocol: InOutProtocol, pipe_rx: Connection, pipe_tx: Connection):
     protocol.set_pipe(pipe_rx)
-    while True:
+    while protocol.tx_cnt < data_limit:
         await asyncio.sleep(send_delay)
-        data = bytearray(random.sample(range(256), size + random.randint(0, deviation)))
+        datalen = size + random.randint(0, deviation)
+        if protocol.tx_cnt + datalen > data_limit:
+            datalen = data_limit - protocol.tx_cnt
+        data = random.randbytes(datalen)
         pipe_tx.send_bytes(data)
         protocol.tx_cnt += len(data)
         transport.write(data)
@@ -68,8 +73,11 @@ async def hypervisor(protocols: list):
         for i in protocols:
             tx = i.tx_cnt
             rx = i.rx_cnt
-            res.append(f'tx = {tx} ({int(tx / tm)} bit/s) rx = {rx} ({int(rx / tm)} bit/s) diff {tx - rx}')
+            res.append(f'tx = {tx} ({int(tx / tm)} bit/s) rx = {rx} ({int(rx / tm)} bit/s) diff {tx - rx}    ')
         print(f'\rtime: {tm} s', ' | '.join(res), end = '')
+        if tm >= time_limit or rx == data_limit:
+            print("")
+            break
 
 print(f'Starting with interval: {send_delay} s, packet size: {size}..{size + deviation} bytes, max speed: {int((size + deviation / 2) / send_delay)} bit/s')
 
