@@ -1,7 +1,7 @@
 from time import time
-from ast import Bytes
 import random
 import asyncio
+# pip install pyserial-asyncio
 from serial_asyncio import create_serial_connection
 from serial_asyncio import SerialTransport
 from multiprocessing import Pipe

@@ -7,11 +7,11 @@
 	},
 	"folders": [
 		{
-			"uri": "vscode-remote://wsl+Ubuntu20.04LTS/mnt/d/git/st/pi-hub/test",
+			"uri": "vscode-remote://wsl+Ubuntu/mnt/d/git/st/pi-hub/test",
 			"name": "test"
 		}
 	],
-	"remoteAuthority": "wsl+Ubuntu20.04LTS",
+	"remoteAuthority": "wsl+Ubuntu",
 	"launch": {
 		"version": "0.2.0",
 		"configurations": [
@@ -27,9 +27,7 @@
 		]
 	},
 	"settings": {
-		"python.pythonPath": "/usr/bin/python3",
 		"window.title": "pi-hub",
-		"git.ignoreLimitWarning": true,
-		"makefile.extensionOutputFolder": "./.vscode"
+		"git.ignoreLimitWarning": true
 	}
 }
