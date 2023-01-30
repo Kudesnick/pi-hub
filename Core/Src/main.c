@@ -19,6 +19,9 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "usb_device.h"
+#include "usbd_cdc.h"
+#include "usbd_cdc_if.h"
+#include "ring_buf.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -61,6 +64,23 @@ static void MX_USART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+t_ring cdc_rx_ring[CDC_NUM];
+uint8_t cdc_tx_buff[CDC_NUM][RING_BUF_SIZE];
+
+void uart_tick(void) {
+  for (int i=0;i<CDC_NUM;i++){
+    // transmit data
+    if (CDC_Transmit_Ready(i) == USBD_OK){
+      __disable_irq();
+      uint16_t data_len = ring_get_data(&cdc_rx_ring[i], cdc_tx_buff[i], RING_BUF_SIZE);
+      __enable_irq();
+      if (data_len)
+        CDC_Transmit_FS(i,cdc_tx_buff[i], data_len);
+    }
+    CDC_Receive_Handler(i);
+  }
+}
 
 /* USER CODE END 0 */
 
@@ -107,6 +127,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	uart_tick();
   }
   /* USER CODE END 3 */
 }
