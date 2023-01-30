@@ -1,0 +1,33 @@
+{
+	"extensions": {
+		"recommendations": ["ms-vscode-remote.remote-wsl",
+			                "ms-python.vscode-pylance",
+							"ms-python.python"
+							]
+	},
+	"folders": [
+		{
+			"uri": "vscode-remote://wsl+Ubuntu/mnt/d/git/st/pi-hub/test",
+			"name": "test"
+		}
+	],
+	"remoteAuthority": "wsl+Ubuntu",
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+			{
+				"name": "cdc_test",
+				"type": "python",
+				"request": "launch",
+				"program": "${workspaceFolder:test}/cdc_test.py",
+				"cwd": "${workspaceFolder:test}",
+				"console": "integratedTerminal",
+				"args": []
+			}
+		]
+	},
+	"settings": {
+		"window.title": "pi-hub",
+		"git.ignoreLimitWarning": true
+	}
+}
