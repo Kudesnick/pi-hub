@@ -72,9 +72,7 @@ void uart_tick(void) {
   for (int i=0;i<CDC_NUM;i++){
     // transmit data
     if (CDC_Transmit_Ready(i) == USBD_OK){
-      __disable_irq();
       uint16_t data_len = ring_get_data(&cdc_rx_ring[i], cdc_tx_buff[i], RING_BUF_SIZE);
-      __enable_irq();
       if (data_len)
         CDC_Transmit_FS(i,cdc_tx_buff[i], data_len);
     }

@@ -103,7 +103,7 @@ loop.close()
 Test report
 stm32f413 virtual COM port  time: 53433 ms | tx = 10485760 (196241 bit/s) rx = 10485760 (196241 bit/s) max diff = 15336
 ST-Link                     time: 91652 ms | tx =  1048576  (11440 bit/s) rx =  1048576  (11440 bit/s) max diff = 15358
-PL2303                       time: 1441 ms | tx =    16377  (11360 bit/s) rx =     4096   (2841 bit/s) diff 12281 error receiving
+PL2303                      time:  1441 ms | tx =    16377  (11360 bit/s) rx =     4096   (2841 bit/s) diff 12281 error receiving
 CH340                       time: 91414 ms | tx =  1048576  (11470 bit/s) rx =  1048576  (11470 bit/s) max diff = 15358
 CP2102                      time: 90922 ms | tx =  1048576  (11532 bit/s) rx =  1048576  (11532 bit/s) max diff = 16278
 '''
